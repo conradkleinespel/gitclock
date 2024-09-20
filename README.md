@@ -6,14 +6,22 @@ That's what GitClock does for you.
 
 ![](gitclock.png)
 
+## Installation
+
+To install GitClock, you can run the following:
+```shell
+sudo npm install -g github:conradkleinespel/gitclock
+sudo ln -sf $(npm root -g)/@conradkleinespel/gitclock/index.js /usr/local/bin/gitclock
+```
+
+You may want to run GitClock without installing it, which you can do with:
+```shell
+npx github:conradkleinespel/gitclock
+```
+
 ## Usage
 
 ```shell
-# Install gitclock
-git clone https://github.com/conradkleinespel/gitclock.git
-env -C gitclock npm ci
-ln -sf $PWD/gitclock/index.js /usr/local/bin/gitclock
-
 # Set your public schedule
 # For example, 9am to 5pm on week days
 gitclock timeslot --add --days "1-5" --start "0900" --end "1700"
