@@ -34,6 +34,11 @@ gitclock rebase -i <commit-sha>
 # Any options from "git push" will work
 gitclock push
 
+# Rewrite history of your existing git repository so that all commits
+# get a date within your schedule and timezone
+# /!\ Do this in a separate branch, just in case you're unhappy with the result
+gitclock rewrite-history
+
 # Configure git hooks to prevent accidental misuse of `git commit/push/rebase`
 echo "gitclock pre-commit-hook" >> .git/pre-commit
 chmod +x .git/pre-commit
