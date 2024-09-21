@@ -82,7 +82,7 @@ class LogEntry {
 async function getLogShaAndDates() {
   const result = await spawnAsync("git", [
     "log",
-    "--pretty=format:%H %aI %I",
+    "--pretty=format:%H %aI %cI",
     "--reverse",
   ]);
 

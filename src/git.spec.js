@@ -185,6 +185,10 @@ describe("git function tests", () => {
       ]);
       expect(logEntries.map((l) => l.authorDate.day)).toEqual([1, 3]);
       expect(logEntries.map((l) => l.commitDate.day)).toEqual([2, 4]);
+      expect(spawnAsync.mock.calls[0]).toEqual([
+        "git",
+        ["log", "--pretty=format:%H %aI %cI", "--reverse"],
+      ]);
     });
   });
 
