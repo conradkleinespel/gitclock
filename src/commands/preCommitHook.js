@@ -13,7 +13,7 @@ exports.preCommitHook = async function (config) {
 
   const currentDate = DateTime.now();
   if (
-    process.env.GIT_CLOCK !== "1" &&
+    process.env.GITCLOCK !== "1" &&
     timeslots.filter((t) => t.isDateWithin(currentDate)).length === 0
   ) {
     console.error(
@@ -23,7 +23,7 @@ exports.preCommitHook = async function (config) {
   }
 
   if (
-    process.env.GIT_CLOCK !== "1" &&
+    process.env.GITCLOCK !== "1" &&
     process.env.GIT_COMMITTER_DATE == null &&
     (await getLastCommitDate()) > currentDate
   ) {

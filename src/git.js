@@ -135,7 +135,7 @@ async function runCommandWithArgs(command, args, env = {}) {
       env: {
         ...process.env,
         ...env,
-        GIT_CLOCK: "1",
+        GITCLOCK: "1",
       },
     });
   } catch (err) {

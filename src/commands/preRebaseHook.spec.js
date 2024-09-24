@@ -19,7 +19,7 @@ describe("preRebaseHook function tests", () => {
     jest.clearAllMocks();
   });
 
-  describe("without GIT_CLOCK=1 in environment", () => {
+  describe("without GITCLOCK=1 in environment", () => {
     test("fails to prevent accidentally committing outside timeslot with raw git commit", async () => {
       const currentDate = DateTime.now();
       const config = {
@@ -47,12 +47,12 @@ describe("preRebaseHook function tests", () => {
     });
   });
 
-  describe("with GIT_CLOCK=1 in environment", () => {
+  describe("with GITCLOCK=1 in environment", () => {
     beforeEach(() => {
-      process.env.GIT_CLOCK = "1";
+      process.env.GITCLOCK = "1";
     });
     afterEach(() => {
-      delete process.env.GIT_CLOCK;
+      delete process.env.GITCLOCK;
     });
     test("fails when there are no timeslots at all", async () => {
       const config = {
