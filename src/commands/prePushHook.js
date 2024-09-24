@@ -14,6 +14,7 @@ async function prePushHook(config) {
 
   const currentDate = DateTime.now();
   if (
+    process.env.GITCLOCK !== "1" &&
     !config.getAllowPushOutsideTimeslot() &&
     timeslots.filter((t) => t.isDateWithin(currentDate)).length === 0
   ) {
@@ -40,7 +41,7 @@ async function prePushHook(config) {
   const localObjectName = inputParts[1];
   const localObjectDate = await getPushObjectDate(localObjectName);
 
-  if (localObjectDate > currentDate) {
+  if (process.env.GITCLOCK !== "1" && localObjectDate > currentDate) {
     console.error(
       "Error: Trying to push commits that are in the future. Aborting.",
     );
