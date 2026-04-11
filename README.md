@@ -53,3 +53,7 @@ chmod +x .git/pre-rebase
 ## Development
 
 Unit and integration tests run under timezone `Africa/Nairobi`, because that is a timezone without summer/winter time, which helps keep tests deterministic throughout the year.
+
+## License
+
+The source code is released under the Apache 2.0 license.
