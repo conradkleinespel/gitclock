@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
-node index.js pre-push-hook
+cargo run pre-push-hook
