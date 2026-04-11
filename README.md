@@ -15,13 +15,7 @@ That's what GitClock does for you.
 
 To install GitClock, you can run the following:
 ```shell
-sudo npm install -g github:conradkleinespel/gitclock
-sudo ln -sf $(npm root -g)/@conradkleinespel/gitclock/index.js /usr/local/bin/gitclock
-```
-
-You may want to run GitClock without installing it, which you can do with:
-```shell
-npx github:conradkleinespel/gitclock
+cargo install --git https://github.com/conradkleinespel/gitclock
 ```
 
 ## Usage
@@ -32,8 +26,8 @@ npx github:conradkleinespel/gitclock
 gitclock timeslot --add --days "1-5" --start "0900" --end "1700"
 
 # Set your public timezone to avoid leaking it during travel
-# Available formats: https://moment.github.io/luxon/#/zones?id=specifying-a-zone 
-gitclock configre --timezone Europe/Paris
+# Available formats: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+gitclock config --timezone Europe/Paris
 
 # Commit with the next available date in your timeslots (±15 minutes)
 # Any options from "git commit" will work

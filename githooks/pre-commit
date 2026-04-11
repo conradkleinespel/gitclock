@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
-node index.js pre-commit-hook
+cargo run pre-commit-hook
