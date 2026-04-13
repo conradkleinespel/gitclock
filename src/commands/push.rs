@@ -91,18 +91,16 @@ mod tests {
     fn pushes_commits_that_are_in_the_past() {
         let mut shell = MockGitShell::new();
         let commit_hash = "c".repeat(40);
-        let log_hash = commit_hash.clone();
         let now = Utc::now();
-        let until_arg = format!("--until=\"{}\"", now.to_rfc3339());
+        let log_output = format!("{} {} {}", commit_hash, now.to_rfc3339(), now.to_rfc3339());
         shell
             .expect_spawn_async()
             .with(
                 mockall::predicate::eq("git"),
                 mockall::predicate::eq(vec![
                     "log".to_string(),
-                    until_arg,
-                    "--pretty=format:%H".to_string(),
-                    "-1".to_string(),
+                    "--pretty=format:%H %aI %cI".to_string(),
+                    "--reverse".to_string(),
                 ]),
                 mockall::predicate::always(),
                 mockall::predicate::always(),
@@ -110,7 +108,7 @@ mod tests {
             .returning(move |_, _, _, _| {
                 Ok(SpawnResult {
                     code: 0,
-                    stdout: log_hash.clone(),
+                    stdout: log_output.clone(),
                     stderr: "".to_string(),
                 })
             });
@@ -172,15 +170,15 @@ mod tests {
     fn fails_gracefully_when_passing_invalid_git_push_options() {
         let mut shell = MockGitShell::new();
         let commit_hash = "c".repeat(40);
-        let log_hash = commit_hash.clone();
         let now = Utc::now();
+        let log_output = format!("{} {} {}", commit_hash, now.to_rfc3339(), now.to_rfc3339());
         shell
             .expect_spawn_async()
             .returning(move |binary, args, _, _| {
                 if binary == "git" && args[0] == "log" {
                     Ok(SpawnResult {
                         code: 0,
-                        stdout: log_hash.clone(),
+                        stdout: log_output.clone(),
                         stderr: "".to_string(),
                     })
                 } else if binary == "git" && args[0] == "rev-parse" {
