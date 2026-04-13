@@ -140,22 +140,17 @@ pub fn get_first_past_commit_hash_with_shell(
     shell: &dyn GitShell,
     now: DateTime<Utc>,
 ) -> anyhow::Result<PastCommit> {
-    let until_arg = format!("--until=\"{}\"", now.to_rfc3339());
-    match shell.spawn_async(
-        "git",
-        &[
-            "log".to_string(),
-            until_arg,
-            "--pretty=format:%H".to_string(),
-            "-1".to_string(),
-        ],
-        false,
-        HashMap::new(),
-    ) {
-        Ok(result) => Ok(PastCommit {
-            commit_hash: result.stdout.trim().to_string(),
+    let entries = get_log_sha_and_dates_with_shell(shell)?;
+    let past_commit = entries
+        .into_iter()
+        .rev()
+        .find(|entry| entry.author_date <= now && entry.commit_date <= now);
+
+    match past_commit {
+        Some(entry) => Ok(PastCommit {
+            commit_hash: entry.sha,
         }),
-        Err(e) => Err(anyhow::anyhow!("Git error: {}", e.stderr)),
+        None => Err(anyhow::anyhow!("No commits found with both author and commit date in the past")),
     }
 }
 
@@ -465,21 +460,29 @@ mod tests {
     }
 
     #[test]
-    fn test_get_first_past_commit_hash_returns_hash() {
+    fn test_get_first_past_commit_hash_filters_both_dates() {
         let mut mock = MockGitShell::new();
-        let now = Utc::now();
-        let hash = "a".repeat(40);
-        let hash_clone = hash.clone();
+        let now = DateTime::parse_from_rfc3339("2023-07-02T12:00:00Z").unwrap().with_timezone(&Utc);
+        let hash_a = "a".repeat(40);
+        let hash_b = "b".repeat(40);
+        let hash_c = "c".repeat(40);
+        // A: both in past
+        // B: author in past, commit in future (rebase case)
+        // C: both in future
+        let output = format!(
+            "{} 2023-07-01T10:00:00Z 2023-07-01T10:00:00Z\n{} 2023-07-01T10:00:00Z 2023-07-03T10:00:00Z\n{} 2023-07-03T10:00:00Z 2023-07-03T10:00:00Z",
+            hash_a, hash_b, hash_c
+        );
         mock.expect_spawn_async().returning(move |_, _, _, _| {
             Ok(SpawnResult {
                 code: 0,
-                stdout: format!("{}\n", hash_clone),
+                stdout: output.clone(),
                 stderr: "".to_string(),
             })
         });
 
         let result = get_first_past_commit_hash_with_shell(&mock, now).unwrap();
-        assert_eq!(result.commit_hash, hash);
+        assert_eq!(result.commit_hash, hash_a);
     }
 
     #[test]
