@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::io::Read;
 use std::process::{Command, Stdio};
+use tracing::{debug, error};
 
 #[derive(Debug)]
 pub struct SpawnError {
@@ -30,6 +31,7 @@ pub fn spawn_async(
     inherit_stdio: bool,
     env: HashMap<String, String>,
 ) -> Result<SpawnResult, SpawnError> {
+    debug!(binary, ?args, inherit_stdio, ?env, "Spawning process");
     let mut child = Command::new(binary)
         .args(args)
         .env("GITCLOCK", "1")
@@ -45,11 +47,15 @@ pub fn spawn_async(
             Stdio::piped()
         })
         .spawn()
-        .map_err(|e| SpawnError {
-            code: None,
-            stdout: "".to_string(),
-            stderr: "".to_string(),
-            message: e.to_string(),
+        .map_err(|e| {
+            let err = SpawnError {
+                code: None,
+                stdout: "".to_string(),
+                stderr: "".to_string(),
+                message: e.to_string(),
+            };
+            error!(?err, "Failed to spawn process");
+            err
         })?;
 
     let mut stdout = String::new();
@@ -64,26 +70,33 @@ pub fn spawn_async(
         }
     }
 
-    let status = child.wait().map_err(|e| SpawnError {
-        code: None,
-        stdout: stdout.clone(),
-        stderr: stderr.clone(),
-        message: e.to_string(),
+    let status = child.wait().map_err(|e| {
+        let err = SpawnError {
+            code: None,
+            stdout: stdout.clone(),
+            stderr: stderr.clone(),
+            message: e.to_string(),
+        };
+        error!(?err, "Failed to wait for process");
+        err
     })?;
 
     if status.success() {
+        debug!(code = status.code(), "Process exited successfully");
         Ok(SpawnResult {
             code: status.code().unwrap_or(0),
             stdout,
             stderr,
         })
     } else {
-        Err(SpawnError {
+        let err = SpawnError {
             code: status.code(),
             stdout,
             stderr,
             message: format!("Process exited with code {:?}", status.code()),
-        })
+        };
+        error!(?err, "Process failed");
+        Err(err)
     }
 }
 

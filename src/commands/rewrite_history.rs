@@ -6,6 +6,7 @@ use crate::git::{
 };
 use crate::timeslot::Timeslot;
 use chrono::{DateTime, Utc};
+use tracing::{debug};
 
 pub fn choose_min_date_for_new_commit(
     existing_author_date: DateTime<Utc>,
@@ -52,6 +53,7 @@ pub fn rewrite_history_with_shell(
     config: &Config,
 ) -> i32 {
     let timeslots = config.get_timeslots();
+    debug!(?timeslots, "Rewriting history with timeslots");
     if timeslots.is_empty() {
         println!("No timeslots found. Please add timeslots.");
         return 1;
@@ -60,7 +62,10 @@ pub fn rewrite_history_with_shell(
     println!("Rewriting commit dates.");
 
     let log_entries = match get_log_sha_and_dates_with_shell(shell) {
-        Ok(entries) => entries,
+        Ok(entries) => {
+            debug!(count = entries.len(), "Retrieved log entries");
+            entries
+        }
         Err(e) => {
             eprintln!("Error getting log: {}", e);
             return 1;
@@ -68,10 +73,14 @@ pub fn rewrite_history_with_shell(
     };
 
     if log_entries.is_empty() {
+        println!("No log entries to rewrite");
         return 0;
     }
 
+    println!("Found {} log entries to rewrite", log_entries.len());
+
     // Amend the first commit to bootstrap the process
+    println!("Rewriting commit {}", log_entries[0].sha.to_string().as_str());
     reset_hard_with_shell(shell, &log_entries[0].sha);
     let mut last_commit_date = Some(amend_commit(
         now,
@@ -83,6 +92,7 @@ pub fn rewrite_history_with_shell(
     ));
 
     for log_entry in log_entries.iter().skip(1) {
+        println!("Rewriting commit {}", log_entry.sha.to_string().as_str());
         cherry_pick_with_shell(shell, &log_entry.sha);
         last_commit_date = Some(amend_commit(
             now,
@@ -93,6 +103,8 @@ pub fn rewrite_history_with_shell(
             &config.get_timezone(),
         ));
     }
+
+    println!("Finished rewriting commit dates");
 
     0
 }

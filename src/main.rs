@@ -20,11 +20,15 @@ use crate::commands::timeslot::TimeslotOptions;
 use crate::config::Config;
 use chrono::Utc;
 use clap::{Parser, Subcommand};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[derive(Parser)]
 #[command(name = "gitclock")]
 #[command(about = "A CLI to schedule Git commits", version = "1.0.0")]
 struct Cli {
+    /// Enable verbose (debug) logging
+    #[arg(short, long, global = true)]
+    verbose: bool,
     #[command(subcommand)]
     command: Commands,
 }
@@ -92,6 +96,19 @@ enum Commands {
 }
 
 fn main() {
+    let cli = Cli::parse();
+
+    let env_filter = if cli.verbose {
+        EnvFilter::from_default_env().add_directive(tracing::Level::DEBUG.into())
+    } else {
+        EnvFilter::from_default_env().add_directive(tracing::Level::INFO.into())
+    };
+
+    tracing_subscriber::registry()
+        .with(fmt::layer().with_writer(std::io::stdout))
+        .with(env_filter)
+        .init();
+
     let mut config = match Config::create_from_conf() {
         Ok(c) => c,
         Err(e) => {
@@ -110,8 +127,6 @@ fn main() {
         }
         std::process::exit(2);
     }
-
-    let cli = Cli::parse();
 
     let now = Utc::now();
     let exit_code = match cli.command {
