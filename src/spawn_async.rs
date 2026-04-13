@@ -6,6 +6,7 @@ use tracing::{debug, error};
 #[derive(Debug)]
 pub struct SpawnError {
     pub code: Option<i32>,
+    #[allow(unused)]
     pub stdout: String,
     pub stderr: String,
     pub message: String,
@@ -22,6 +23,7 @@ impl std::error::Error for SpawnError {}
 pub struct SpawnResult {
     pub code: i32,
     pub stdout: String,
+    #[allow(unused)]
     pub stderr: String,
 }
 
