@@ -2,4 +2,4 @@
 
 set -e
 
-cargo run pre-commit-hook
+cargo run --quiet pre-commit-hook

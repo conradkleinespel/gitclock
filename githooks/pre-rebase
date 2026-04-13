@@ -2,4 +2,4 @@
 
 set -e
 
-cargo run pre-rebase-hook
+cargo run --quiet pre-rebase-hook
