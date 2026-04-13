@@ -2,4 +2,4 @@
 
 set -e
 
-cargo run pre-push-hook
+cargo run --quiet pre-push-hook
