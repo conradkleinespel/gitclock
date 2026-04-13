@@ -2,3 +2,4 @@
 /.idea/
 /coverage/
 tarpaulin-report.html
+.output.txt
