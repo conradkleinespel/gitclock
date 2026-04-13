@@ -25,12 +25,13 @@ impl Timeslot {
         let _: Tz = Tz::from_str(timezone)
             .map_err(|_| anyhow::anyhow!("Timezone must be string, eg +0200 or Europe/Paris"))?;
 
-        Ok(Self {
+        let res = Self {
             day_range: (start_day, end_day),
             start_time: (start_hour, start_min),
             end_time: (end_hour, end_min),
             timezone: timezone.to_string(),
-        })
+        };
+        Ok(res)
     }
 
     pub fn is_date_within(&self, date: DateTime<Utc>) -> bool {

@@ -1,6 +1,7 @@
 use crate::timeslot::Timeslot;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use tracing::debug;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct ConfigData {
@@ -36,8 +37,11 @@ impl Config {
     }
 
     pub fn create_from_name(name: &str) -> anyhow::Result<Self> {
+        debug!(config_name = name, "Loading config");
         let data: ConfigData =
             confy::load(name, name).map_err(|e| anyhow::anyhow!("Failed to load config: {}", e))?;
+        let filename = confy::get_configuration_file_path(name, Some(name)).unwrap();
+        debug!(?data, ?filename, "Config loaded successfully");
         Ok(Self {
             data,
             config_name: name.to_string(),
@@ -45,12 +49,15 @@ impl Config {
     }
 
     pub fn save(&self) -> anyhow::Result<()> {
+        debug!(config_name = self.config_name, "Saving config");
         confy::store(
             &self.config_name,
             Some(self.config_name.as_str()),
             &self.data,
         )
-        .map_err(|e| anyhow::anyhow!("Failed to save config: {}", e))
+        .map_err(|e| anyhow::anyhow!("Failed to save config: {}", e))?;
+        debug!("Config saved successfully");
+        Ok(())
     }
 
     pub fn get_timeslots(&self) -> Vec<Timeslot> {
@@ -64,7 +71,8 @@ impl Config {
 
     pub fn add_timeslot(&mut self, days: String, start: String, end: String) -> anyhow::Result<()> {
         let timezone = self.get_timezone();
-        Timeslot::new(&days, &start, &end, &timezone)?;
+        let timeslot = Timeslot::new(&days, &start, &end, &timezone)?;
+        debug!(?timeslot, "Created new Timeslot");
         self.data
             .timeslots
             .push(TimeslotConfig { days, start, end });
@@ -81,10 +89,11 @@ impl Config {
     }
 
     pub fn get_timezone(&self) -> String {
-        self.data.timezone.clone().unwrap_or_else(|| {
+        let tz = self.data.timezone.clone().unwrap_or_else(|| {
             // This is a simplification, but good enough for now
             "UTC".to_string()
-        })
+        });
+        tz
     }
 
     pub fn set_timezone(&mut self, value: String) -> anyhow::Result<()> {
