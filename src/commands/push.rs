@@ -47,7 +47,7 @@ pub fn push_with_shell(
 
     let mut push_args = args.to_vec();
     push_args.push(tracking.remote);
-    push_args.push(format!("{}:{}", first_past_commit_hash, tracking.branch));
+    push_args.push(format!("{}:refs/heads/{}", first_past_commit_hash, tracking.branch));
 
     git_push_with_shell(shell, &push_args)
 }
@@ -140,7 +140,7 @@ mod tests {
                 mockall::predicate::eq(vec![
                     "push".to_string(),
                     "origin".to_string(),
-                    format!("{}:my-branch", commit_hash),
+                    format!("{}:refs/heads/my-branch", commit_hash),
                 ]),
                 mockall::predicate::always(),
                 mockall::predicate::always(),
