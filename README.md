@@ -1,21 +1,37 @@
 # GitClock
 
-> [!TIP]
-> This project was initially developed in Typescript. I've now rewritten it in Rust. The new version comes with improved
-> performance, better error handling, and more user-friendly features. Check out the `rust` branch if you're interested:
-> https://github.com/conradkleinespel/gitclock/tree/rust
-
 Want all your commits to have dates within specific ranges? Want to avoid leaking your current timezone through your commit log?
 
 That's what GitClock does for you.
+
+> [!NOTE]
+> This project was initially developed in Typescript. I've now rewritten it in Rust. The new version comes with improved
+> performance, bugfixes and out-of-the-box NixOS support.
 
 ![](gitclock.png)
 
 ## Installation
 
 To install GitClock, you can run the following:
+
 ```shell
 cargo install --git https://github.com/conradkleinespel/gitclock
+```
+
+There is also first-class NixOS support through `default.nix`:
+
+```nix
+{ pkgs, ... }:
+{
+  environment.systemPackages = with pkgs; [
+    (callPackage (fetchFromGitHub {
+      owner  = "conradkleinespel";
+      repo   = "gitclock";
+      rev    = "git-commit-sha-here";
+      sha256 = "nix-sha256-here";
+    }) {})
+  ];
+}
 ```
 
 ## Usage
