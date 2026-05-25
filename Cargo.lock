@@ -393,7 +393,6 @@ dependencies = [
  "regex",
  "serde",
  "serial_test",
- "toml",
  "tracing",
  "tracing-subscriber",
 ]

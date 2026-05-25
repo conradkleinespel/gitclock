@@ -3,10 +3,12 @@
 pkgs.mkShell {
   buildInputs = with pkgs; [
     rustup
-    cargo-tarpaulin
+    podman
   ];
 
   shellHook = ''
+    git config set core.hooksPath githooks
+
     rustup default stable
     rustup component add rust-src
   '';
