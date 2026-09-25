@@ -4,10 +4,6 @@ Want all your commits to have dates within specific ranges? Want to avoid leakin
 
 That's what GitClock does for you.
 
-> [!NOTE]
-> This project was initially developed in Typescript. I've now rewritten it in Rust. The new version comes with improved
-> performance, bugfixes and out-of-the-box NixOS support.
-
 ![](gitclock.png)
 
 ## Installation
@@ -58,9 +54,10 @@ gitclock rebase -i <commit-sha>
 gitclock push
 
 # Rewrite history of your existing git repository so that all commits
-# get a date within your schedule and timezone
+# get a date within your schedule and timezone, optionally with a starting point
 # /!\ Do this in a separate branch, just in case you're unhappy with the result
 gitclock rewrite-history
+gitclock rewrite-history <commit-to-start-rewriting-from>
 
 # Configure git hooks to prevent accidental misuse of `git commit/push/rebase`
 echo "gitclock pre-commit-hook" >> .git/pre-commit

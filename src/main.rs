@@ -86,7 +86,11 @@ enum Commands {
         args: Vec<String>,
     },
     /// Rewrite git history with dates within timeslots
-    RewriteHistory,
+    RewriteHistory {
+        /// Optional commit hash to rewrite history from
+        #[arg(value_name = "COMMIT")]
+        commit: Option<String>,
+    },
     /// Prevents mistakenly committing outside timeslots
     PreCommitHook,
     /// Prevents mistakenly pushing outside timeslots
@@ -162,8 +166,8 @@ fn main() {
         Commands::Commit { args } => commands::commit::run_commit_command(now, &args, &config),
         Commands::Push { args } => commands::push::run_push_command(now, &args, &config),
         Commands::Rebase { args } => commands::rebase::run_rebase_command(now, &args, &config),
-        Commands::RewriteHistory => {
-            commands::rewrite_history::run_rewrite_history_command(now, &config)
+        Commands::RewriteHistory { commit } => {
+            commands::rewrite_history::run_rewrite_history_command(now, commit.as_deref(), &config)
         }
         Commands::PreCommitHook => {
             commands::pre_commit_hook::run_pre_commit_hook_command(now, &config)
